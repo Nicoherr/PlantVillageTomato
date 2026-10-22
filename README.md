@@ -1,4 +1,65 @@
-PlantVillageTomatoCNNInforme Técnico - Clasificación de Enfermedades en Hojas de Tomate mediante Redes Neuronales Convolucionales (CNN) y Comparación con Perceptrón Multicapa (MLP)1. Descripción del Problema de NegocioLa detección temprana de enfermedades fitosanitarias en la agricultura es crítica para prevenir la pérdida masiva de cultivos de tomate (Solanum lycopersicum). Mientras que en la Evaluación Parcial 1 se abordó este problema utilizando un Perceptrón Multicapa (MLP), dicho modelo evidenció severas limitaciones estructurales al aplanar los datos espaciales (1D), resultando en pérdidas elevadas de información geométrica y textural.Esta Evaluación Parcial 2 evoluciona la solución mediante el diseño e implementación de una Red Neuronal Convolucional (CNN). Las CNN aplican filtros convolucionales capaces de preservar la dimensionalidad y estructura espacial en 2D/3D, permitiendo la extracción automática e invariante de características jerárquicas (bordes, manchas, texturas) para elevar la precisión diagnóstica y mejorar la toma de decisiones agrícolas.2. Objetivos del Proyecto y KPIsObjetivos del ProyectoDesarrollar un pipeline reproducible de Deep Learning adaptado para datos tensoriales de visión por computadora.Diseñar e implementar una arquitectura CNN personalizada en Keras/TensorFlow.Evaluar, comparar y justificar técnicamente el desempeño cuantitativo y cualitativo de la arquitectura CNN frente al modelo MLP previo.Analizar e interpretar los mapas de características (Feature Maps) para comprender el proceso interno de extracción de características de la red.KPIs del Proyecto y Comparativa de ResultadosMétrica / KPIObjetivo EsperadoResultado MLP (EP1)Resultado CNN (EP2)¿Se cumple el KPI?Propósito en el NegocioAccuracy Global> 85%79.0%92.3%✅ SíMaximizar el acierto diagnóstico general en el cultivo.Macro F1-Score> 0.850.790.92✅ SíGarantizar un rendimiento equilibrado en todas las patologías.Recall en Late blight> 0.800.680.88✅ SíMinimizar falsos negativos en la enfermedad más destructiva.Tiempo de Inferencia< 50 ms / imagen~2-3 ms~5-8 ms✅ SíPermitir el procesamiento en tiempo real en dispositivos de campo.3. Continuidad del Problema y Trazabilidad de la VariantePara asegurar la trazabilidad experimental y comparar objetivamente ambas arquitecturas, se mantuvo estrictamente la variante de datos original de la Evaluación Parcial 1:Cultivo Seleccionado: Hojas de Tomate (Solanum lycopersicum).Clases Seleccionadas (4): Tomato___healthy, Tomato___Late_blight, Tomato___Bacterial_spot, Tomato___Leaf_Mold.Volumen de Datos: 2,000 imágenes en total (500 imágenes por clase, perfectamente balanceado).Semilla de Reproducibilidad: SEED = 2026 para la partición estratificada de datos.Estructura de Partición: 70% Entrenamiento (1,400 muestras), 15% Validación (300 muestras) y 15% Prueba (300 muestras).4. Preprocesamiento y Preparación de Datos para CNNA diferencia del pipeline MLP donde las imágenes se redimensionaron a $64 \times 64 \times 3$ y se aplanaron a vectores de $12,288$ dimensiones, la CNN requiere preservar el formato tensorial en 2D/3D:Reescalado de Resolución: Las imágenes se procesan a una resolución de $128 \times 128 \times 3$ píxeles (RGB). Esto proporciona una resolución superior a la usada en MLP, permitiendo capturar micro-lesiones y bordes finos de las manchas.Conservación Tensorial: Se mantiene la forma del tensor $(B, 128, 128, 3)$, preservando la adjacencia espacial entre píxeles adyacentes.Normalización: Los valores de los píxeles se reescalan del rango $[0, 255]$ al intervalo $[0.0, 1.0]$ dividiendo por $255.0$ para estabilizar y acelerar la convergencia del gradiente.Data Augmentation: Se aplica aumento de datos en tiempo de ejecución (rotaciones aleatorias hasta $\pm 15^\circ$, cambios de zoom de $\pm 10\%$ y giros horizontales) para mejorar la capacidad de generalización del modelo frente a variaciones de captura en terreno.5. Arquitectura de la Red Neuronal Convolucional (CNN)Configuración del ModeloTensor de Entrada (128, 128, 3)
+# PlantVillageTomato
+
+Informe Técnico - Clasificación de Enfermedades en Hojas de Tomate mediante Redes Neuronales Convolucionales (CNN) y Comparación con Perceptrón Multicapa (MLP)
+
+---
+
+## 1. Descripción del Problema de Negocio
+
+La detección temprana de enfermedades fitosanitarias en la agricultura es crítica para prevenir la pérdida masiva de cultivos de tomate (*Solanum lycopersicum*). Mientras que en la Evaluación Parcial 1 se abordó este problema utilizando un Perceptrón Multicapa (MLP), dicho modelo evidenció severas limitaciones estructurales al aplanar los datos espaciales (1D), resultando en pérdidas significativamente elevadas de información geométrica y textural.
+
+Esta Evaluación Parcial 2 evoluciona la solución mediante el diseño e implementación de una **Red Neuronal Convolucional (CNN)**. Las CNN aplican filtros convolucionales capaces de preservar la dimensionalidad y estructura espacial en 2D/3D, permitiendo la extracción automática e invariante de características jerárquicas (bordes, manchas, texturas) para elevar la precisión diagnóstica y mejorar la toma de decisiones agrícolas.
+
+---
+
+## 2. Objetivos del Proyecto y KPIs
+
+### Objetivos del Proyecto
+- Desarrollar un pipeline reproducible de Deep Learning adaptado para datos tensoriales de visión por computadora.
+- Diseñar e implementar una arquitectura CNN personalizada en Keras/TensorFlow.
+- Evaluar, comparar y justificar técnicamente el desempeño cuantitativo y cualitativo de la arquitectura CNN frente al modelo MLP previo.
+- Analizar e interpretar los mapas de características (*Feature Maps*) y mapas de activación para comprender el proceso interno de extracción de características de la red.
+
+### KPIs del Proyecto y Comparativa de Resultados
+
+| Métrica / KPI | Objetivo Esperado | Resultado MLP (EP1) | Resultado CNN (EP2) | ¿Se cumple el KPI? | Propósito en el Negocio |
+|---|---|---|---|---|---|
+| **Accuracy Global** | > 85% | 79.0% | **92.3%** | ✅ Sí | Maximizar el acierto diagnóstico general en el cultivo. |
+| **Macro F1-Score** | > 0.85 | 0.79 | **0.92** | ✅ Sí | Garantizar un rendimiento equilibrado en todas las patologías. |
+| **Recall en *Late blight*** | > 0.80 | 0.68 | **0.88** | ✅ Sí | Minimizar falsos negativos en la enfermedad más destructiva. |
+| **Tiempo de Inferencia** | < 50 ms / imagen | ~2-3 ms | **~5-8 ms** | ✅ Sí | Permitir el procesamiento en tiempo real en dispositivos de campo. |
+
+---
+
+## 3. Continuidad del Problema y Trazabilidad de la Variante
+
+Para asegurar la trazabilidad experimental y comparar objetivamente ambas arquitecturas, se mantuvo estrictamente la **variante de datos original** de la Evaluación Parcial 1:
+
+- **Cultivo Seleccionado:** Hojas de Tomate (*Solanum lycopersicum*).
+- **Clases Seleccionadas (4):** `Tomato___healthy`, `Tomato___Late_blight`, `Tomato___Bacterial_spot`, `Tomato___Leaf_Mold`.
+- **Volumen de Datos:** 2,000 imágenes en total (500 imágenes por clase, perfectamente balanceado).
+- **Semilla de Reproducibilidad:** `SEED = 2026` para la partición estratificada de datos.
+- **Estructura de Partición:** 70% Entrenamiento (1,400 muestras), 15% Validación (300 muestras) y 15% Prueba (300 muestras).
+
+---
+
+## 4. Preprocesamiento y Preparación de Datos para CNN
+
+A diferencia del pipeline MLP donde las imágenes se redimensionaron a 64x64x3 y se aplanaron a vectores de 12,288 dimensiones, la CNN requiere preservar el formato tensorial en 2D/3D:
+
+1. **Reescalado de Resolución:** Las imágenes se procesan a una resolución de **128x128x3 píxeles** (RGB). Esto proporciona una resolución superior a la usada en MLP (64x64), permitiendo capturar micro-lesiones y bordes finos de las manchas.
+2. **Conservación Tensorial:** Se mantiene la forma del tensor (B, 128, 128, 3), preservando la adjacencia espacial entre píxeles adyacentes.
+3. **Normalización:** Los valores de los píxeles se reescalan del rango [0, 255] al intervalo [0.0, 1.0] dividiendo por 255.0 para estabilizar y acelerar la convergencia del gradiente.
+4. **Data Augmentation:** Se aplica aumento de datos en tiempo de ejecución (rotaciones aleatorias hasta ±15°, cambios de zoom de ±10% y giros horizontales) para mejorar la capacidad de generalización del modelo frente a variaciones de captura en terreno.
+
+---
+
+## 5. Arquitectura de la Red Neuronal Convolucional (CNN)
+
+### Configuración del Modelo
+
+```text
+Tensor de Entrada (128, 128, 3)
    │
    ├── Conv2D (32 filtros 3x3, ReLU, padding='same') ──► BatchNorm ──► MaxPooling2D (2x2)
    │
@@ -11,22 +72,3 @@ PlantVillageTomatoCNNInforme Técnico - Clasificación de Enfermedades en Hojas 
    ├── Dense (128 unidades, ReLU) ──► Dropout (0.4)
    │
    └── Dense (4 unidades, Softmax)
-CapaTipo / ConfiguraciónFiltros / UnidadesDimensión de SalidaParámetros EntrenablesEntradaTensor de Imagen-$(128, 128, 3)$0Conv2D_1Kernel $3 \times 3$, Stride $1$, ReLU32$(128, 128, 32)$896BatchNormalization_1Normalización por lotes32$(128, 128, 32)$128Pool_1MaxPooling2D $2 \times 2$-$(64, 64, 32)$0Conv2D_2Kernel $3 \times 3$, Stride $1$, ReLU64$(64, 64, 64)$18,496BatchNormalization_2Normalización por lotes64$(64, 64, 64)$256Pool_2MaxPooling2D $2 \times 2$-$(32, 32, 64)$0Conv2D_3Kernel $3 \times 3$, Stride $1$, ReLU128$(32, 32, 128)$73,856BatchNormalization_3Normalización por lotes128$(32, 32, 128)$512Pool_3MaxPooling2D $2 \times 2$-$(16, 16, 128)$0GlobalPoolGlobalAveragePooling2D-$(128)$0Dense_1Capa Densa + Dropout (0.4)128$(128)$16,512SalidaDense (Softmax)4$(4)$516TotalParámetros Entrenables: 110,660Justificación Técnica de la ArquitecturaFiltros $3 \times 3$ con Padding 'same': Permiten capturar campos receptivos pequeños para detectar detalles locales (bordes y textura de manchas) manteniendo la dimensión espacial antes del subsampling.Capas de Max-Pooling ($2 \times 2$): Reducen la dimensionalidad espacial a la mitad en cada bloque, aportando invariancia a pequeñas traslaciones y reduciendo el costo computacional.Batch Normalization: Estabiliza la distribución de las activaciones intermedias, acelerando la convergencia y permitiendo un entrenamiento más estable.Global Average Pooling: Reemplaza capas Flatten masivas, reduciendo de manera drástica el número total de parámetros del modelo a solo ~110k (frente a los 1.58M del MLP), previniendo activamente el sobreajuste (overfitting).Hiperparámetros de Entrenamiento: Optimizador Adam ($lr = 0.0003$), función de pérdida sparse_categorical_crossentropy, $30$ épocas, batch size de $32$ con EarlyStopping (paciencia = 5).6. Resultados y Comparación Técnica: CNN vs. MLPComparativa Cuantitativa Directa (Evaluado en Conjunto de Test: 300 imágenes)Métrica / MóduloPerceptrón Multicapa (MLP)Red Neuronal Convolucional (CNN)Mejora / DiferenciaAccuracy Global79.0%92.3%+13.3%Macro F1-Score0.790.92+0.13Parámetros Entrenables1,580,000110,660-93.0% de parámetrosF1-Score en Late blight0.670.88+0.21F1-Score en Bacterial spot0.850.94+0.09F1-Score en Leaf Mold0.830.93+0.10F1-Score en Healthy0.830.95+0.12Análisis Comparativo de Rendimiento y GeneralizaciónEficiencia de Parámetros: La CNN utiliza un 93% menos de parámetros que el MLP. Mientras el MLP memoriza combinaciones rígidas de píxeles unidimensionales, la CNN comparte pesos mediante sus filtros convolucionales, logrando mayor capacidad predictiva con un modelo sustancialmente más liviano.Superación del cuello de botella en Late blight: En el MLP, la clase Late blight obtenía un bajo F1-Score (0.67) debido a la variabilidad espacial e irregularidad de las quemaduras. La CNN elevó esta métrica a 0.88 gracias a que las operaciones de convolución y pooling extraen patrones geométricos y contornos sin importar la posición de la lesión.Curvas de Aprendizaje: Las curvas de Loss y Accuracy de la CNN muestran una convergencia suave entre entrenamiento y validación, demostrando una capacidad de generalización superior gestionada por Batch Normalization, Dropout y Data Augmentation.7. Visualización e Interpretación de Mapas de Características (Feature Maps)Primeras Capas Convolucionales (Conv2D_1): Retienen la resolución espacial casi intacta y detectan características de bajo nivel como bordes agudos, cambios de contraste cromático y transiciones entre el color verde sano y las zonas necróticas marrones/negras.Capas Intermedias (Conv2D_2): Combinan las respuestas de bajo nivel para activar patrones texturales específicos, diferenciando manchas puntuales (patrón sintomático de Bacterial spot) frente a áreas cloróticas o mohosas difundidas (Leaf Mold).Capas Convolucionales Profundas (Conv2D_3): La resolución espacial disminuye notablemente debido a los bloqueos de Pooling, pero se genera una representación abstracta de alto nivel donde la red activa conjuntos de filtros especializados únicamente en la geometría e intensidad de lesiones avanzadas.8. Auditoría de Errores y Análisis CualitativoA pesar del incremento al 92.3% de accuracy:Casos de Error Restantes: Las confusiones remanentes ocurren mayoritariamente entre etapas muy tempranas de Late blight e infecciones avanzadas de Leaf Mold.Causas Físicas de Confusión: En fases incipientes, ambas enfermedades manifiestan decoloraciones cloróticas (amarillentas) muy similares sobre la superficie foliar. Sin la resolución microscópica o datos multiespectrales, la inspección visual simple a $128 \times 128$ presenta ambigüedad diagnóstica.9. Conclusiones y Trabajo FuturoConclusionesSe demostró empíricamente la superioridad categórica de las arquitecturas CNN sobre las redes densas (MLP) para tareas de visión artificial en agricultura.La conservación de la estructura espacial 2D y la invariancia a traslaciones permitieron solucionar el problema de baja precisión en clases de geometría irregular como Late blight.La CNN logró no solo un incremento del 13.3% en Accuracy Global, sino que lo hizo reduciendo la complejidad del modelo en un 93% de parámetros respecto a la solución MLP previa.Trabajo FuturoTransfer Learning: Evaluar modelos preentrenados ligeros como MobileNetV3 o EfficientNetB0 para extender el alcance a la totalidad de las 38 clases del dataset PlantVillage original.Explicabilidad mediante Grad-CAM: Implementar mapas de calor de activación regional (Grad-CAM) para validar visualmente que las decisiones del modelo se fundamentan exclusivamente en las lesiones foliares.Despliegue Edge (TFLite): Cuantizar el modelo a formato TensorFlow Lite para su integración directa en aplicaciones móviles offline sin requerir conectividad a internet en el predio agrícola.10. Estructura del RepositorioPLANTVILLAGETOMATO/
-├── data/                              # 2,000 imágenes (4 clases x 500)
-│   ├── Tomato___Bacterial_spot/
-│   ├── Tomato___healthy/
-│   ├── Tomato___Late_blight/
-│   └── Tomato___Leaf_Mold/
-├── images/                            # Gráficos del proyecto
-│   ├── curvas_entrenamiento_cnn.png
-│   ├── matriz_confusion_cnn.png
-│   ├── comparativa_mlp_vs_cnn.png
-│   ├── feature_maps_capa1.png
-│   └── ejemplos_errores_cnn.png
-├── models/                            # Modelos guardados
-│   ├── modelo_mlp_plantdisease.h5
-│   └── modelo_cnn_plantdisease.h5
-├── notebooks/                         # Notebooks del pipeline
-│   ├── pipeline_mlp_tomatoes.ipynb
-│   └── pipeline_cnn_tomatoes.ipynb
-└── README.md                          # Informe técnico reproducible
