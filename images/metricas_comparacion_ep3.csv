@@ -1,0 +1,3 @@
+Modelo,Accuracy,Precision (Macro),Recall (Macro),F1-Score (Macro),ROC-AUC (OvR),Tiempo Entrenamiento (s)
+MLP_Optimizada,0.7567,0.8398,0.7519,0.7653,0.9647,8.35
+CNN_Final_Optimizada,0.3167,0.1677,0.3205,0.1963,0.7073,88.6
